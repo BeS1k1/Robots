@@ -98,6 +98,15 @@ public class MainApplicationFrame extends JFrame
     private JMenuBar generateMenuBar()
     {
         JMenuBar menuBar = new JMenuBar();
+        JMenu visualModeMenu = CreateVisualModeMenu();
+        JMenu testMenu = CreateTestMenu();
+        menuBar.add(visualModeMenu);
+        menuBar.add(testMenu);
+        return menuBar;
+    }
+
+    private JMenu CreateVisualModeMenu()
+    {
         
         JMenu lookAndFeelMenu = new JMenu("Режим отображения");
         lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
@@ -113,31 +122,28 @@ public class MainApplicationFrame extends JFrame
             lookAndFeelMenu.add(systemLookAndFeel);
         }
 
-        {
-            JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
-            crossplatformLookAndFeel.addActionListener((event) -> {
-                setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                this.invalidate();
-            });
-            lookAndFeelMenu.add(crossplatformLookAndFeel);
-        }
+        JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
+        crossplatformLookAndFeel.addActionListener((event) -> {
+            setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            this.invalidate();
+        });
+        lookAndFeelMenu.add(crossplatformLookAndFeel);
+        return lookAndFeelMenu;
+    }
 
+    private JMenu CreateTestMenu()
+    {
         JMenu testMenu = new JMenu("Тесты");
         testMenu.setMnemonic(KeyEvent.VK_T);
         testMenu.getAccessibleContext().setAccessibleDescription(
                 "Тестовые команды");
-        
-        {
-            JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
-            addLogMessageItem.addActionListener((event) -> {
-                Logger.debug("Новая строка");
-            });
-            testMenu.add(addLogMessageItem);
-        }
 
-        menuBar.add(lookAndFeelMenu);
-        menuBar.add(testMenu);
-        return menuBar;
+        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
+        addLogMessageItem.addActionListener((event) -> {
+            Logger.debug("Новая строка");
+        });
+        testMenu.add(addLogMessageItem);
+        return testMenu;
     }
     
     private void setLookAndFeel(String className)
