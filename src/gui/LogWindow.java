@@ -27,8 +27,16 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
+        setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+        setVisible(true);
         pack();
         updateLogContent();
+    }
+
+    public void dispose()
+    {
+        m_logSource.unregisterListener(this);
+        setVisible(false);
     }
 
     private void updateLogContent()

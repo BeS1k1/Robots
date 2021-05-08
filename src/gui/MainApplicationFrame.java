@@ -29,33 +29,34 @@ public class MainApplicationFrame extends JFrame
     public MainApplicationFrame() {
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
-        int inset = 50;        
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-            screenSize.width  - inset*2,
-            screenSize.height - inset*2);
+        //int inset = 50;
+        //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        //setBounds(inset, inset,
+        //    screenSize.width  - inset*2,
+        //    screenSize.height - inset*2);
 
+
+        setLocationRelativeTo(null);
         setContentPane(desktopPane);
-        
-        
-        LogWindow logWindow = createLogWindow();
-        addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
-        addWindow(gameWindow);
-
+        addWindow(createLogWindow());
+        addWindow(createGameWindow());
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
-    
+
+    protected GameWindow createGameWindow()
+    {
+        GameWindow gameWindow = new GameWindow();
+        gameWindow.setSize(400, 400);
+        gameWindow.setAlignmentX(GameWindow.CENTER_ALIGNMENT);
+        return gameWindow;
+    }
+
     protected LogWindow createLogWindow()
     {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
         logWindow.setLocation(10,10);
-        logWindow.setSize(300, 800);
-        setMinimumSize(logWindow.getSize());
-        logWindow.pack();
         Logger.debug("Протокол работает");
         return logWindow;
     }
@@ -156,7 +157,7 @@ public class MainApplicationFrame extends JFrame
         catch (ClassNotFoundException | InstantiationException
             | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            // just ignore
+            e.printStackTrace();
         }
     }
 }

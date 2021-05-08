@@ -15,6 +15,7 @@ public class GameWindow extends JInternalFrame
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
+        setDefaultLocale(JInternalFrame.getDefaultLocale());
         pack();
     }
 }
