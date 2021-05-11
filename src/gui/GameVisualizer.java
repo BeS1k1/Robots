@@ -10,14 +10,15 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-public class GameVisualizer extends JPanel
+public class GameVisualizer extends JPanel implements Serializable
 {
-    private final Timer m_timer = initTimer();
+    private transient Timer m_timer = initTimer();
     
     private static Timer initTimer() 
     {
@@ -28,6 +29,8 @@ public class GameVisualizer extends JPanel
     private volatile double m_robotPositionX = 100;
     private volatile double m_robotPositionY = 100; 
     private volatile double m_robotDirection = 0;
+    private volatile int m_robotDiam1 = 30;
+    private volatile int m_robotDiam2 = 10;
 
     private Target target = new Target(150, 100);
     
@@ -36,6 +39,37 @@ public class GameVisualizer extends JPanel
     
     public GameVisualizer() 
     {
+        m_timer.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                onRedrawEvent();
+            }
+        }, 0, 50);
+        m_timer.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                onModelUpdateEvent();
+            }
+        }, 0, 10);
+        addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                setTargetPosition(e.getPoint());
+                repaint();
+            }
+        });
+        setDoubleBuffered(true);
+    }
+
+    public void setMetadata() {
+        m_timer = initTimer();
+
         m_timer.schedule(new TimerTask()
         {
             @Override
@@ -123,8 +157,10 @@ public class GameVisualizer extends JPanel
         angularVelocity = applyLimits(angularVelocity, -maxAngularVelocity, maxAngularVelocity);
         double angleToTarget = angleTo(m_robotPositionX, m_robotPositionY, target.getM_targetPositionX(), target.getM_targetPositionY());
         if (Math.abs(angleToTarget - m_robotDirection) < 0.1) {
-            m_robotPositionX = m_robotPositionX + Math.cos(angleToTarget) * duration * velocity;
-            m_robotPositionY = m_robotPositionY + Math.sin(angleToTarget) * duration * velocity;
+            double xValue = m_robotPositionX + Math.cos(angleToTarget) * duration * velocity;
+            m_robotPositionX = applyLimits(xValue, Math.max(m_robotDiam1, m_robotDiam2) / 2, this.getWidth() - Math.max(m_robotDiam1, m_robotDiam2) / 2);
+            double yValue = m_robotPositionY + Math.sin(angleToTarget) * duration * velocity;
+            m_robotPositionY = applyLimits(yValue, Math.max(m_robotDiam1, m_robotDiam2) / 2, this.getHeight() - Math.max(m_robotDiam1, m_robotDiam2) / 2);
         }
         else {
             m_robotDirection = asNormalizedRadians(m_robotDirection + angularVelocity * duration);
@@ -175,9 +211,9 @@ public class GameVisualizer extends JPanel
         AffineTransform t = AffineTransform.getRotateInstance(direction, robotCenterX, robotCenterY); 
         g.setTransform(t);
         g.setColor(Color.MAGENTA);
-        fillOval(g, robotCenterX, robotCenterY, 30, 10);
+        fillOval(g, robotCenterX, robotCenterY, m_robotDiam1, m_robotDiam2);
         g.setColor(Color.BLACK);
-        drawOval(g, robotCenterX, robotCenterY, 30, 10);
+        drawOval(g, robotCenterX, robotCenterY, m_robotDiam1, m_robotDiam2);
         g.setColor(Color.WHITE);
         fillOval(g, robotCenterX  + 10, robotCenterY, 5, 5);
         g.setColor(Color.BLACK);
