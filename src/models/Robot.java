@@ -28,4 +28,16 @@ public class Robot {
     {
         return m_robotDirection;
     }
+
+    public void setM_robotPositionX(double m_robotPositionX) {
+        this.m_robotPositionX = m_robotPositionX;
+    }
+
+    public void setM_robotPositionY(double m_robotPositionY) {
+        this.m_robotPositionY = m_robotPositionY;
+    }
+
+    public void setM_robotDirection(double m_robotDirection) {
+        this.m_robotDirection = m_robotDirection;
+    }
 }

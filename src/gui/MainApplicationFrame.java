@@ -37,7 +37,15 @@ public class MainApplicationFrame extends JFrame
                 closingHandler.handleClosing();
             }
             public void windowOpened(WindowEvent e) {
-                loadingHandler.handleLoading(MainApplicationFrame.this, frames);
+                File file = new File("window.dat");
+                if (file.exists()){
+                    loadingHandler.handleLoading(MainApplicationFrame.this, frames);
+                }
+                else{
+                    System.out.println("file not exist");
+                    addWindow(createLogWindow());
+                    addWindow(createGameWindow());
+                }
             }
         });
     }
@@ -79,6 +87,7 @@ public class MainApplicationFrame extends JFrame
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(desktopPane.getAllFrames());
         } catch (IOException ex) {
+            Logger.error("MainApplicationFrame.saveWindowStates " + ex.getMessage());
             System.out.println(ex.getMessage());
         }
     }

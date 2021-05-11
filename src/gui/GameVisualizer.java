@@ -1,5 +1,6 @@
 package gui;
 
+import models.Robot;
 import models.Target;
 
 import java.awt.Color;
@@ -25,14 +26,13 @@ public class GameVisualizer extends JPanel implements Serializable
         Timer timer = new Timer("events generator", true);
         return timer;
     }
-    
-    private volatile double m_robotPositionX = 100;
-    private volatile double m_robotPositionY = 100; 
-    private volatile double m_robotDirection = 0;
+
     private volatile int m_robotDiam1 = 30;
     private volatile int m_robotDiam2 = 10;
 
     private Target target = new Target(150, 100);
+
+    private Robot robot = new Robot(100, 100, 0, target);
     
     private static final double maxVelocity = 0.1; 
     private static final double maxAngularVelocity = 0.005;
@@ -127,18 +127,18 @@ public class GameVisualizer extends JPanel implements Serializable
     protected void onModelUpdateEvent()
     {
         double distance = distance(target.getM_targetPositionX(), target.getM_targetPositionY(),
-            m_robotPositionX, m_robotPositionY);
+                robot.getM_robotPositionX(),  robot.getM_robotPositionY());
         if (distance < 0.5)
         {
             return;
         }
-        double angleToTarget = angleTo(m_robotPositionX, m_robotPositionY, target.getM_targetPositionX(), target.getM_targetPositionY());
+        double angleToTarget = angleTo( robot.getM_robotPositionX(),  robot.getM_robotPositionY(), target.getM_targetPositionX(), target.getM_targetPositionY());
         double angularVelocity = 0;
-        if (angleToTarget > m_robotDirection)
+        if (angleToTarget >  robot.getM_robotDirection())
         {
             angularVelocity = maxAngularVelocity;
         }
-        if (angleToTarget < m_robotDirection)
+        if (angleToTarget <  robot.getM_robotDirection())
         {
             angularVelocity = -maxAngularVelocity;
         }
@@ -155,15 +155,15 @@ public class GameVisualizer extends JPanel implements Serializable
     {
         velocity = applyLimits(velocity, 0, maxVelocity);
         angularVelocity = applyLimits(angularVelocity, -maxAngularVelocity, maxAngularVelocity);
-        double angleToTarget = angleTo(m_robotPositionX, m_robotPositionY, target.getM_targetPositionX(), target.getM_targetPositionY());
-        if (Math.abs(angleToTarget - m_robotDirection) < 0.1) {
-            double xValue = m_robotPositionX + Math.cos(angleToTarget) * duration * velocity;
-            m_robotPositionX = applyLimits(xValue, Math.max(m_robotDiam1, m_robotDiam2) / 2, this.getWidth() - Math.max(m_robotDiam1, m_robotDiam2) / 2);
-            double yValue = m_robotPositionY + Math.sin(angleToTarget) * duration * velocity;
-            m_robotPositionY = applyLimits(yValue, Math.max(m_robotDiam1, m_robotDiam2) / 2, this.getHeight() - Math.max(m_robotDiam1, m_robotDiam2) / 2);
+        double angleToTarget = angleTo(robot.getM_robotPositionX(), robot.getM_robotPositionY(), target.getM_targetPositionX(), target.getM_targetPositionY());
+        if (Math.abs(angleToTarget - robot.getM_robotDirection()) < 0.1) {
+            double xValue = robot.getM_robotPositionX() + Math.cos(angleToTarget) * duration * velocity;
+            robot.setM_robotPositionX(applyLimits(xValue, Math.max(m_robotDiam1, m_robotDiam2) / 2, this.getWidth() - Math.max(m_robotDiam1, m_robotDiam2) / 2));
+            double yValue = robot.getM_robotPositionY() + Math.sin(angleToTarget) * duration * velocity;
+            robot.setM_robotPositionY(applyLimits(yValue, Math.max(m_robotDiam1, m_robotDiam2) / 2, this.getHeight() - Math.max(m_robotDiam1, m_robotDiam2) / 2));
         }
         else {
-            m_robotDirection = asNormalizedRadians(m_robotDirection + angularVelocity * duration);
+            robot.setM_robotDirection(asNormalizedRadians(robot.getM_robotDirection() + angularVelocity * duration));
         }
     }
 
@@ -190,7 +190,7 @@ public class GameVisualizer extends JPanel implements Serializable
     {
         super.paint(g);
         Graphics2D g2d = (Graphics2D)g; 
-        drawRobot(g2d, round(m_robotPositionX), round(m_robotPositionY), m_robotDirection);
+        drawRobot(g2d, round(robot.getM_robotPositionX()), round(robot.getM_robotPositionY()), robot.getM_robotDirection());
         drawTarget(g2d, target.getM_targetPositionX(), target.getM_targetPositionY());
     }
     
@@ -206,8 +206,8 @@ public class GameVisualizer extends JPanel implements Serializable
     
     private void drawRobot(Graphics2D g, int x, int y, double direction)
     {
-        int robotCenterX = round(m_robotPositionX); 
-        int robotCenterY = round(m_robotPositionY);
+        int robotCenterX = round(robot.getM_robotPositionX());
+        int robotCenterY = round(robot.getM_robotPositionY());
         AffineTransform t = AffineTransform.getRotateInstance(direction, robotCenterX, robotCenterY); 
         g.setTransform(t);
         g.setColor(Color.MAGENTA);
