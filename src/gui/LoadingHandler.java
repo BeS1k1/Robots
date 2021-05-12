@@ -1,35 +1,18 @@
 package gui;
 
 import log.Logger;
+import org.json.simple.parser.ParseException;
 
 import javax.swing.*;
+import java.io.IOException;
 
 public class LoadingHandler {
 
-    public void handleLoading(MainApplicationFrame mainFrame, JInternalFrame[] frames) {
+    public void handleLoading(StatesKeeper keeper) throws ParseException, IOException {
         int answer = showSaveMessage();
         if (answer == JOptionPane.YES_OPTION) {
-            for (JInternalFrame frame : frames) {
-                switch (frame.getClass().getSimpleName()) {
-                    case "LogWindow": {
-                        LogWindow logWindow = (LogWindow) frame;
-                        logWindow.setLogSource(Logger.getDefaultLogSource());
-                        break;
-                    }
-                    case "GameWindow": {
-                        GameWindow gameWindow = (GameWindow) frame;
-                        gameWindow.setMetadata();
-                        break;
-                    }
-                    default: {
-                        throw new IllegalStateException();
-                    }
-                }
-                mainFrame.addWindow(frame);
-            }
+            keeper.load();
         } else {
-            mainFrame.addWindow(mainFrame.createLogWindow());
-            mainFrame.addWindow(mainFrame.createGameWindow());
             Logger.info("Don't load a save");
         }
     }
@@ -37,7 +20,6 @@ public class LoadingHandler {
     private int showSaveMessage() {
         String[] buttonLabels = new String[] {"Yes", "No"};
         String defaultOption = buttonLabels[0];
-        String message;
         Icon icon = null;
         return JOptionPane.showOptionDialog(null,
                 "You have a save. Do you want to load it?",

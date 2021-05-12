@@ -1,12 +1,11 @@
 package log;
 
-import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
 
-public class LogWindowSource implements Serializable
+public class LogWindowSource
 {
     private int m_iQueueLength;
     

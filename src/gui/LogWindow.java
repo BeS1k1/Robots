@@ -3,9 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.TextArea;
-import java.io.Serializable;
 
-import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -14,18 +12,21 @@ import log.LogChangeListener;
 import log.LogEntry;
 import log.LogWindowSource;
 
-public class LogWindow extends JInternalFrame implements LogChangeListener, Serializable
+public class LogWindow extends RestorableJInternalFrame implements LogChangeListener
 {
     private LogWindow window = this;
     private LogWindowSource m_logSource;
     private TextArea m_logContent;
     private ClosingHandler closingHandler = new ClosingHandler();
+    private StatesKeeper m_keeper;
 
-    public LogWindow(LogWindowSource logSource) 
+    public LogWindow(LogWindowSource logSource, StatesKeeper keeper)
     {
         super("Протокол работы", true, true, true, true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         m_logSource = logSource;
+        m_keeper = keeper;
+        m_keeper.register(this, "LogWindow");
         m_logSource.registerListener(this);
         m_logContent = new TextArea("");
         m_logContent.setSize(200, 500);
@@ -42,23 +43,10 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Seri
         });
     }
 
-    public void setLogSource(LogWindowSource logSource) {
-        Iterable<LogEntry> entries = m_logSource.all();
-        m_logSource = logSource;
-        m_logSource.registerListener(this);
-        for (LogEntry entry: entries) {
-            m_logSource.append(entry.getLevel(), entry.getMessage());
-        }
-        addInternalFrameListener(new InternalFrameAdapter() {
-            public void internalFrameClosing(InternalFrameEvent e) {
-                closingHandler.handleClosing(window, e, 2);
-            }
-        });
-    }
-
     public void dispose()
     {
         m_logSource.unregisterListener(this);
+        m_keeper.unregister(this.getName());
         setVisible(false);
     }
 

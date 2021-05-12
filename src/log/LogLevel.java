@@ -1,8 +1,6 @@
 package log;
 
-import java.io.Serializable;
-
-public enum LogLevel implements Serializable
+public enum LogLevel
 {
     Trace(0),
     Debug(1),

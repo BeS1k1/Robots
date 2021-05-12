@@ -4,9 +4,8 @@ import log.Logger;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
-import java.io.Serializable;
 
-public class ClosingHandler implements Serializable {
+public class ClosingHandler {
     public void handleClosing() {
         int answer = showWarningMessage(1);
         if (answer == JOptionPane.YES_OPTION) {

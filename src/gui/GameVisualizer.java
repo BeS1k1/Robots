@@ -11,13 +11,12 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-public class GameVisualizer extends JPanel implements Serializable
+public class GameVisualizer extends JPanel
 {
     private transient Timer m_timer = initTimer();
     

@@ -1,8 +1,6 @@
 package log;
 
-import java.io.Serializable;
-
-public class LogEntry implements Serializable
+public class LogEntry
 {
     private LogLevel m_logLevel;
     private String m_strMessage;
