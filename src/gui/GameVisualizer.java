@@ -1,5 +1,7 @@
 package gui;
 
+import log.Logger;
+import models.Barrier;
 import models.Robot;
 import models.Target;
 
@@ -11,6 +13,7 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,8 +33,9 @@ public class GameVisualizer extends JPanel
     private volatile int m_robotDiam2 = 10;
 
     private Target target = new Target(150, 100);
-
     private Robot robot = new Robot(100, 100, 0, target);
+
+    private ArrayList<Barrier> barriers = new ArrayList<>();
     
     private static final double maxVelocity = 0.1; 
     private static final double maxAngularVelocity = 0.005;
@@ -54,44 +58,41 @@ public class GameVisualizer extends JPanel
                 onModelUpdateEvent();
             }
         }, 0, 10);
+
         addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                setTargetPosition(e.getPoint());
-                repaint();
+                if (e.getButton()==MouseEvent.BUTTON3) {
+                    setTargetPosition(e.getPoint());
+                    repaint();
+                    Logger.debug("нажал ПКМ");
+                }
+                if (e.getButton()==MouseEvent.BUTTON2){
+                    for (Barrier barrier : barriers){
+                        if (barrier.hasInBarrier(e.getPoint())){
+                            barriers.remove(barrier);
+                        }
+                    }
+                    Logger.debug("нажал ЦКМ");
+                }
             }
-        });
-        setDoubleBuffered(true);
-    }
-
-    public void setMetadata() {
-        m_timer = initTimer();
-
-        m_timer.schedule(new TimerTask()
-        {
+            final Point[] point1 = new Point[1];
             @Override
-            public void run()
-            {
-                onRedrawEvent();
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    point1[0] = e.getPoint();
+                    Logger.debug("зажал ЛКМ");
+                }
             }
-        }, 0, 50);
-        m_timer.schedule(new TimerTask()
-        {
             @Override
-            public void run()
-            {
-                onModelUpdateEvent();
-            }
-        }, 0, 10);
-        addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                setTargetPosition(e.getPoint());
-                repaint();
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    barriers.add(new Barrier(Math.min(point1[0].x, e.getPoint().x), Math.min(point1[0].y, e.getPoint().y),
+                            Math.max(point1[0].x, e.getPoint().x), Math.max(point1[0].y, e.getPoint().y)));
+                    Logger.debug("отжал ЛКМ x1 " + point1[0].x + " y1 " + point1[0].y + " x2 " + e.getPoint().x + " y2 " + e.getPoint().y);
+                }
             }
         });
         setDoubleBuffered(true);
@@ -191,6 +192,11 @@ public class GameVisualizer extends JPanel
         Graphics2D g2d = (Graphics2D)g; 
         drawRobot(g2d, round(robot.getM_robotPositionX()), round(robot.getM_robotPositionY()), robot.getM_robotDirection());
         drawTarget(g2d, target.getM_targetPositionX(), target.getM_targetPositionY());
+        for(int i=0; i<barriers.size(); i++){
+            Barrier barrier = barriers.get(i);
+            drawRectagle(g2d, barrier.getM_barrierPositionX1(), barrier.getM_barrierPositionY1(),
+                    barrier.getM_barrierPositionX2(), barrier.getM_barrierPositionY2());
+        }
     }
     
     private static void fillOval(Graphics g, int centerX, int centerY, int diam1, int diam2)
@@ -227,5 +233,10 @@ public class GameVisualizer extends JPanel
         fillOval(g, x, y, 5, 5);
         g.setColor(Color.BLACK);
         drawOval(g, x, y, 5, 5);
+    }
+
+    private void drawRectagle(Graphics2D g, int x1, int y1, int x2, int y2){
+        g.setColor(Color.BLUE);
+        g.fillRect(x1, y1, Math.abs(x1-x2), Math.abs(y1-y2));
     }
 }
